@@ -16,6 +16,7 @@ console.log(initialTodoList);
 
 function App() {
     const [todoList, setTodoList] = useState(initialTodoList);
+    const [searchStatus, setSearchStatus] = useState(null);
 
     const createTodo = (title) => {
         const newTodo = { title, completed: false, id: uuidv4() };
@@ -24,12 +25,73 @@ function App() {
         setTodoList(oldTodoList);
     };
 
+    const removeTodo = (id) => {
+        const idx = todoList.findIndex((el) => el.id === id);
+        if (idx !== -1) {
+            const clone = [...todoList];
+            clone.splice(idx, 1);
+            setTodoList(clone);
+        }
+    };
+
+    // newValue: {title,completed}
+    const updateTodo = (newvalue, id) => {
+        const idx = todoList.findIndex((el) => el.id === id);
+        if (idx !== -1) {
+            const clone = [...todoList];
+            clone[idx] = { ...clone[idx], ...newvalue, id };
+            setTodoList(clone);
+        }
+    };
+
+    const changeSearchStatus = (value) => {
+        setSearchStatus(value);
+    };
+
+    // const filterOut = (value) => {
+    //     if (value === "ALL") {
+    //         return todoList;
+    //     } else if (value === "COMPLETED") {
+    //         return todoList.filter((ele) => ele.completed === true);
+    //     } else if (value === "PENDING") {
+    //         return todoList.filter((ele) => ele.completed === false);
+    //     }
+    // };
+
+    // let filteredTodoList = [];
+
+    // switch (searchStatus) {
+    //     case "COMPLETED": {
+    //         filteredTodoList = todoList.filter((ele) => ele.completed === true);
+    //         break;
+    //     }
+    //     case "PENDING": {
+    //         filteredTodoList = todoList.filter(
+    //             (ele) => ele.completed === false
+    //         );
+    //         break;
+    //     }
+    //     default:
+    //         filteredTodoList = [...todoList];
+    // }
+
+    const filteredTodoList = todoList.filter(
+        (ele) => searchStatus === null || ele.completed === searchStatus
+    );
+
     return (
         <div className="container max-w-xs pt-5">
             <TodoInput createTodo={createTodo} />
-            <Filter />
+            <Filter
+                changeSearchStatus={changeSearchStatus}
+                searchStatus={searchStatus}
+            />
             <PageLimit />
-            <TodoList todoList={todoList} />
+            <TodoList
+                todoList={filteredTodoList}
+                removeTodo={removeTodo}
+                updateTodo={updateTodo}
+            />
             <Pagination />
         </div>
     );
